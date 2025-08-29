@@ -1,0 +1,45 @@
+services:
+  web:
+    build: .
+    container_name: drupal-web
+    ports:
+      - "${DRUPAL_PORT:-8080}:80"
+    volumes:
+      - ./drupal:/var/www/html
+      - ./modules:/var/www/html/web/modules/custom
+      - ./themes:/var/www/html/web/themes/custom
+      - ./profiles:/var/www/html/web/profiles/custom
+      - ./scripts:/scripts
+    environment:
+      - DRUPAL_DB_HOST=db
+      - DRUPAL_DB_USER=${DB_USER:-drupal}
+      - DRUPAL_DB_PASSWORD=${DB_PASSWORD:-drupal}
+      - DRUPAL_DB_NAME=${DB_NAME:-drupal}
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10.11
+    container_name: drupal-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-drupal}
+      MYSQL_USER: ${DB_USER:-drupal}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-drupal}
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: drupal-phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
