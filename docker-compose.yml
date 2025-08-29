@@ -1,43 +1,56 @@
+version: '3.8'
+
 services:
-  web:
-    build: .
-    container_name: drupal-web
+  nginx:
+    image: nginx:alpine
+    container_name: drupal-nginx
     ports:
-      - "${DRUPAL_PORT:-8080}:80"
+      - "${WEB_PORT:-8080}:80"
     volumes:
       - ./drupal:/var/www/html
-      - ./modules:/var/www/html/modules/custom
-      - ./themes:/var/www/html/themes/custom
-      - ./profiles:/var/www/html/profiles/custom
-      - ./scripts:/scripts
-    environment:
-      - DRUPAL_DB_HOST=db
-      - DRUPAL_DB_USER=${DB_USER:-drupal}
-      - DRUPAL_DB_PASSWORD=${DB_PASSWORD:-drupal}
-      - DRUPAL_DB_NAME=${DB_NAME:-drupal}
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - db
+      - php-fpm
+
+  php-fpm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: drupal-php-fpm
+    volumes:
+      - ./drupal:/var/www/html
+    environment:
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      XDEBUG_CONFIG: "client_host=${XDEBUG_CLIENT_HOST:-host.docker.internal}"
+    healthcheck:
+      test: ["CMD", "fuser", "9000/tcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db:
-    image: mariadb:10.11
+    image: mariadb:10.6
     container_name: drupal-db
-    restart: always
+    ports:
+      - "${DB_PORT:-3308}:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${DB_NAME:-drupal}
-      MYSQL_USER: ${DB_USER:-drupal}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-drupal}
+      MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-root_password}"
+      MARIADB_DATABASE: "${DB_NAME:-drupal}"
+      MARIADB_USER: "${DB_USER:-drupal}"
+      MARIADB_PASSWORD: "${DB_PASSWORD:-drupal}"
     volumes:
       - db_data:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: drupal-phpmyadmin
+    ports:
+      - "${PHPMYADMIN_PORT:-8081}:80"
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-    ports:
-      - "${PMA_PORT:-8081}:80"
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-root_password}"
     depends_on:
       - db
 

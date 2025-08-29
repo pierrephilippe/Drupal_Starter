@@ -1,0 +1,16 @@
+# Docker
+/.env
+/.env.local
+
+# Drupal
+/drupal
+
+
+# IDE and OS
+.idea/
+.vscode/
+*.log
+*.sql
+*.sqlite
+.DS_Store
+Thumbs.db

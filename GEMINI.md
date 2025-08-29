@@ -46,3 +46,11 @@ To provide a simple and configurable Drupal development environment with Docker.
 - Use the `.env` file to manage environment variables.
 - Keep the `docker-compose.yml` file clean and readable.
 - Use `drush` for all Drupal site management tasks.
+Si tu as une erreur : ✕ [API Error: got status: UNAVAILABLE. {"error":{"code":503,"message":"The model is overloaded. Please try again later.","status":"UNAVAILABLE"}}]
+essaie automatiquement de relancer la requete
+
+
+
+si tu obtiens l'erreur : ✕ [API Error: got status: UNAVAILABLE. {"error":{"code":503,"message":"The model is overloaded. Please try again later.","status":"UNAVAILABLE"}}]
+essaie automatiquement de relancer la requete
+si ca echoue encore propose moi d'autre facon de me connecter à GEmini

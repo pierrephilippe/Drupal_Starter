@@ -1,66 +1,102 @@
 # Drupal Starter
 
-## Description
+This project provides a simple and configurable Drupal 10 development environment with Docker and Docker Compose.
 
-Ce projet est un environnement de développement pour Drupal basé sur Docker.
-Il est composé des services suivants :
-- Un serveur web Apache avec PHP pour Drupal
-- Une base de données MariaDB
-- phpMyAdmin pour gérer la base de données
-- Outils de développement : Xdebug, PHPCS, PHPStan
+## Prerequisites
 
-## Prérequis
+- Docker Desktop (or Docker Engine and Docker Compose)
 
-- Docker
-- Docker Compose
-- Composer
+## Getting Started
 
-## Installation
+1.  **Clone the repository:**
 
-1.  Clonez le projet.
-2.  Copiez le fichier `.env.example` en `.env` et modifiez les variables si nécessaire.
-3.  Installez les dépendances de Drupal avec Composer :
     ```bash
-    composer create-project drupal/recommended-project:^10 drupal --no-interaction
+    git clone <repository_url>
+    cd drupal_starter
     ```
-4.  Lancez les conteneurs Docker :
+
+2.  **Copy the environment file:**
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    You can modify the `.env` file to change ports, database credentials, or Xdebug settings.
+
+3.  **Build and start the Docker containers:**
+
     ```bash
     docker compose up -d --build
     ```
-5.  Installez Drupal via Drush.
+
+    This will build the `web` service image and start all defined services (web, db, phpmyadmin).
+
+4.  **Install Drupal 10 via Composer:**
+
+    Once the containers are up, execute the following command to install Drupal 10:
+
     ```bash
-    docker exec drupal-web drush site:install standard --db-url="mysql://${DB_USER:-drupal}:${DB_PASSWORD:-drupal}@db/${DB_NAME:-drupal}" --site-name="Drupal Starter" -y
+    docker exec -it drupal-web composer create-project drupal/recommended-project:^10.0 /var/www/html --no-interaction
     ```
 
-## Configuration
+    This will download and set up Drupal in the `drupal/` directory.
 
-Vous pouvez modifier les ports exposés par les services en modifiant les variables d'environnement dans le fichier `.env` :
+5.  **Install Drupal site:**
 
-- `DRUPAL_PORT` : Le port pour accéder à Drupal (par défaut : 8080)
-- `PMA_PORT` : Le port pour accéder à phpMyAdmin (par défaut : 8081)
+    ```bash
+    docker exec -it drupal-web drush site:install standard --db-url="mysql://${DB_USER:-drupal}:${DB_PASSWORD:-drupal}@db/${DB_NAME:-drupal}" --site-name="Drupal Starter" --account-name=admin --account-pass=admin -y
+    ```
 
-## Usage
+    *Note: The database credentials are read from the `.env` file. Default admin username is `admin` and password is `admin`.*
 
-- Drupal est accessible à l'adresse [http://localhost:${DRUPAL_PORT}](http://localhost:${DRUPAL_PORT})
-- phpMyAdmin est accessible à l'adresse [http://localhost:${PMA_PORT}](http://localhost:${PMA_PORT})
+6.  **Access Drupal:**
 
-## Outils
+    Open your web browser and navigate to `http://localhost:${WEB_PORT:-8080}` (default: `http://localhost:8080`).
 
-### Xdebug
+7.  **Access phpMyAdmin:**
 
-Xdebug est configuré pour se connecter à l'hôte sur le port 9003.
-Vous pouvez utiliser l'extension "PHP Debug" pour VSCode.
+    Open your web browser and navigate to `http://localhost:${PHPMYADMIN_PORT:-8081}` (default: `http://localhost:8081`).
 
-### PHP CodeSniffer
+## Development Tools
 
-Pour utiliser PHPCS, exécutez la commande suivante :
-```bash
-docker exec drupal-web phpcs --standard=Drupal /var/www/html/modules/custom
-```
+The `web` container includes the following PHP development tools:
 
-### PHPStan
+-   **Xdebug:** For debugging PHP applications. Configured to connect to `host.docker.internal` on port `9003`.
+-   **PHPStan:** For static analysis.
+-   **PHP-CS-Fixer:** For PHP code style fixing.
 
-Pour utiliser PHPStan, exécutez la commande suivante :
-```bash
-docker exec drupal-web phpstan analyse /var/www/html/modules/custom
-```
+## Useful Drush Commands
+
+-   **Check Drupal status:**
+
+    ```bash
+    docker exec -it drupal-web drush status
+    ```
+
+-   **Clear caches:**
+
+    ```bash
+    docker exec -it drupal-web drush cr
+    ```
+
+-   **Run database updates:**
+
+    ```bash
+    docker exec -it drupal-web drush updb
+    ```
+
+## Troubleshooting
+
+-   If you encounter issues, try bringing down the containers and rebuilding:
+
+    ```bash
+    docker compose down
+    docker compose up -d --build
+    ```
+
+-   Check container logs for errors:
+
+    ```bash
+    docker compose logs -f web
+    docker compose logs -f db
+    ```
