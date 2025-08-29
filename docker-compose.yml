@@ -6,9 +6,9 @@ services:
       - "${DRUPAL_PORT:-8080}:80"
     volumes:
       - ./drupal:/var/www/html
-      - ./modules:/var/www/html/web/modules/custom
-      - ./themes:/var/www/html/web/themes/custom
-      - ./profiles:/var/www/html/web/profiles/custom
+      - ./modules:/var/www/html/modules/custom
+      - ./themes:/var/www/html/themes/custom
+      - ./profiles:/var/www/html/profiles/custom
       - ./scripts:/scripts
     environment:
       - DRUPAL_DB_HOST=db
