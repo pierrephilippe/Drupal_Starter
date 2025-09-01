@@ -36,7 +36,7 @@ This project provides a simple and configurable Drupal 10 development environmen
     Once the containers are up, execute the following command to install Drupal 10:
 
     ```bash
-    docker exec -it drupal-web composer create-project drupal/recommended-project:^10.0 /var/www/html --no-interaction
+    docker exec -it drupal-php-fpm composer create-project drupal/recommended-project:^10.0 /var/www/html --no-interaction
     ```
 
     This will download and set up Drupal in the `drupal/` directory.
@@ -44,7 +44,7 @@ This project provides a simple and configurable Drupal 10 development environmen
 5.  **Install Drupal site:**
 
     ```bash
-    docker exec -it drupal-web drush site:install standard --db-url="mysql://${DB_USER:-drupal}:${DB_PASSWORD:-drupal}@db/${DB_NAME:-drupal}" --site-name="Drupal Starter" --account-name=admin --account-pass=admin -y
+    docker exec -it drupal-php-fpm drush site:install standard --db-url="mysql://${DB_USER:-drupal}:${DB_PASSWORD:-drupal}@db/${DB_NAME:-drupal}" --site-name="Drupal Starter" --account-name=admin --account-pass=admin -y
     ```
 
     *Note: The database credentials are read from the `.env` file. Default admin username is `admin` and password is `admin`.*

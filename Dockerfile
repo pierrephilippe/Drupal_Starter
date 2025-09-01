@@ -44,6 +44,9 @@ RUN pecl install xdebug && docker-php-ext-enable xdebug
 # Install Composer
 COPY --from=composer/composer:latest-bin /composer /usr/bin/composer
 
+# Install Drush
+RUN composer global require drush/drush
+
 # Install PHPStan
 RUN composer global require phpstan/phpstan
 ENV PATH="$PATH:/root/.composer/vendor/bin"
